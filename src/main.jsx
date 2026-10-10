@@ -296,6 +296,7 @@ const [loadingOpportunities, setLoadingOpportunities] = useState(true);
  
 const [opportunityError, setOpportunityError] = useState("");
 const [dataMode, setDataMode] = useState("loading");
+const API_BASE_URL = "https://beyond-website.onrender.com";
 useEffect(() => {
  
   let cancelled = false;
@@ -308,7 +309,7 @@ useEffect(() => {
  
       setOpportunityError("");
  
-      const response = await fetch("/api/opportunities");
+      const response = await fetch(`${API_BASE_URL}/api/opportunities`);
  
       if (!response.ok) {
  
@@ -333,8 +334,8 @@ useEffect(() => {
         );
         const activeSources = (data.sources || []).filter(source => source.status === "connected");
         setOpportunityError(data.mode === "live"
-          ? `Live listings connected: ${activeSources.map(source => `${source.name} (${source.count})`).join(" · ")}. Open a listing to continue to the source website and apply.`
-          : "Preview mode · no live source returned listings, so sample opportunities are shown.");
+          ? `Live listings loaded${activeSources.length ? ` from ${activeSources.map(source => `${source.name} (${source.count})`).join(" · ")}` : ""}. Open a listing to continue to the source website and apply.`
+          : "No live opportunities were returned by the connected sources. Please try again later.");
       }
  
     } catch (error) {
@@ -342,15 +343,12 @@ useEffect(() => {
       console.error("Opportunity feed failed:", error);
  
       if (!cancelled) {
-        // Keep the product usable when the API is offline. These are clearly
-        // labeled preview records, never presented as verified live listings.
-        setDataMode("demo");
-        setOpportunities(demoOpportunities.map((item, index) => ({
-          ...normalizeOpportunity(item, index),
-          isDemo: true,
-          featured: Boolean(item.featured)
-        })));
-        setOpportunityError("Preview mode · sample opportunities are shown because the API is unavailable.");
+        // Never show fictional opportunities as if they were real listings.
+        setDataMode("error");
+        setOpportunities([]);
+        setOpportunityError(
+          "We couldn't load live opportunities right now. Please refresh in a moment. If this continues, the API may be unavailable."
+        );
       }
  
     } finally {
@@ -616,7 +614,7 @@ function Home({ opportunities, dataMode = "demo", onExplore, onOpen }) {
         <p className="hero-copy">Discover scholarships, internships, fellowships, jobs, grants and global programs that fit <strong>you</strong> — not just your search history.</p>
         <div className="hero-actions">
           <button className="primary-button large" onClick={onExplore}>Explore opportunities <ArrowRight size={18}/></button>
-          <button className="ghost-button large" onClick={() => onOpen(featured[0])}>See your match <Sparkles size={17}/></button>
+          <button className="ghost-button large" onClick={() => featured[0] && onOpen(featured[0])} disabled={!featured.length}>See your match <Sparkles size={17}/></button>
         </div>
         <div className="hero-proof">
           <span><CheckCircle2 size={15}/> Personalized matching</span>
