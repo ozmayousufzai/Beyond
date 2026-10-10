@@ -3,6 +3,9 @@
 **Discover opportunities. Explore your potential. Build your future.**
 
 Beyond is a web-based opportunity discovery platform designed to help users find career opportunities that match their interests, skills, and goals. It brings listings from multiple sources into one place, making it easier to explore opportunities without searching across numerous websites.
+## 📸 Preview
+
+![Beyond Opportunity Intelligence Platform](beyond-preview.png)
 
 ##  Live Demo
 
